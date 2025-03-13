@@ -1,0 +1,2 @@
+# ScamCoin
+ScamCoin telegram app
