@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScamCoin</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            justify-content: space-between;
+        }
+        .coin {
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+            margin: 10px 0;
+        }
+        .task-section {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #222;
+            border-radius: 10px;
+        }
+        .task-button {
+            background-color: #ffcc00;
+            color: black;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .task-button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .hamster {
+            width: 350px;
+            height: 350px;
+            background: url('./images-Photoroom.png') no-repeat center;
+            background-size: contain;
+            transition: transform 0.1s;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .hamster.clicked {
+            transform: scale(1.2);
+        }
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            background-color: #222;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .tab {
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .tab.active {
+            background-color: #ffcc00;
+            color: black;
+        }
+        .content {
+            display: none;
+        }
+        .content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="game" class="content active">
+        <div class="coin">💰 Coins: <span id="coinCount">0</span></div>
+        <div class="container">
+            <div class="hamster" id="hamster" onclick="clickCoin()"></div>
+        </div>
+    </div>
+    <div id="tasks" class="content">
+        <h2>Задания</h2>
+        <p>Выполняйте задания и получайте награды!</p>
+        <div class="task-section">
+            <h3>Подписка</h3>
+            <p><strong>Подписаться на Telegram канал</strong></p>
+            <button class="task-button" onclick="openTelegramChannel()">Канал</button>
+            <button class="task-button" id="checkButton" onclick="checkSubscription()">Проверить</button>
+        </div>
+    </div>
+    <div id="referrals" class="content">
+        <h2>Реферальная система</h2>
+        <p>Приглашайте друзей и зарабатывайте дополнительные монеты!</p>
+        <p>Ваша реферальная ссылка:</p>
+        <div id="referralLink" class="referral-link" onclick="copyReferralLink()">Генерируется...</div>
+    </div>
+    <div class="tabs">
+        <div class="tab active" onclick="openTab('game')">Игра</div>
+        <div class="tab" onclick="openTab('tasks')">Задания</div>
+        <div class="tab" onclick="openTab('referrals')">Рефералы</div>
+    </div>
+    <script>
+        let coins = localStorage.getItem("coinCount") ? parseInt(localStorage.getItem("coinCount")) : 0;
+        document.getElementById("coinCount").innerText = coins;
+        
+        let userId = "ScamCoin-ref-" + Math.floor(Math.random() * 1000000);
+        let referralLink = window.location.origin + window.location.pathname + "?ref=" + userId;
+        
+        document.getElementById("referralLink").innerText = referralLink;
+        
+        function clickCoin() {
+            coins++;
+            document.getElementById("coinCount").innerText = coins;
+            localStorage.setItem("coinCount", coins);
+            
+            let hamster = document.getElementById("hamster");
+            hamster.classList.add("clicked");
+            setTimeout(() => hamster.classList.remove("clicked"), 100);
+        }
+        
+        function openTab(tabName) {
+            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
+        }
+        
+        function copyReferralLink() {
+            navigator.clipboard.writeText(referralLink).then(() => {
+                alert("Реферальная ссылка скопирована!");
+            });
+        }
+        
+        function openTelegramChannel() {
+            window.open("https://t.me/yourchannel", "_blank");
+        }
+        
+        function checkSubscription() {
+            if (!localStorage.getItem("subscribed")) {
+                coins += 100000;
+                document.getElementById("coinCount").innerText = coins;
+                localStorage.setItem("coinCount", coins);
+                localStorage.setItem("subscribed", "true");
+                document.getElementById("checkButton").disabled = true;
+                alert("Вы получили 100 000 монет за подписку!");
+            }
+        }
+        
+        if (localStorage.getItem("subscribed")) {
+            document.getElementById("checkButton").disabled = true;
+        }
+    </script>
+</body>
+</html>
